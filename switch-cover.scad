@@ -7,11 +7,17 @@ W = 35;   // Box inside width
 S = 100;  // Screw distance
 WALL = 3;   // Wall Thickness
 
-module flexiCut() {
+/*
+knobFlexiCut();
+*/
+knob();
+
+module knobFlexiCut() {
 	h = KH + 2;
-	r = (W + WALL) / 2;
-	a = 25; // Angle for quadrant 3
-	b = 5; // Angle for notch cutters
+	r = (W + WALL) / 2;    // Outer knob radius
+	A = r2d(WALL / (W/2)); // Angle for one wall thinckness
+	a = A * 2.5;           // Angle for quadrant 3
+	b = A / 2;             // Angle for notch cutters
 	translate([0, 0, -1])
 	union() {
 		difference() {
@@ -48,21 +54,19 @@ module flexiCut() {
 		// Upper right notch cutter
 		rotate([0, 0, b])
 			translate([r-WALL-WALL, -WALL, 0]) {
-				translate([WALL/2, 0, 0])
-					cube([WALL*2, WALL, h]); // Horizontal line
+				translate([WALL/2, WALL/2, 0])
+					cube([WALL*2, WALL/2, h]); // Horizontal line
 				difference() { // Upper right quarter pipe
-					translate([WALL*1.5, 0, 0])
-						cube([WALL, WALL*1.5, h]);
+					translate([WALL*1.5, WALL/2, 0])
+						cube([WALL, WALL, h]);
 					translate([WALL*3/2, WALL*1.5, -1])
 						cylinder(r=WALL/2, h=h+2, $fn=FN/3);
 				}
 			}
 
 		// Striaght right notch cutter
-		/*
-		translate([r-WALL-WALL/2, -WALL/2, 0])
-			cube([WALL*2, WALL, h]);
-		*/
+		translate([r-WALL-WALL/2, -WALL/4, 0])
+			cube([WALL*2, WALL/2, h]);
 
 		// Lower right notch cutter
 		rotate([0, 0, -b])
@@ -73,24 +77,11 @@ module flexiCut() {
 					translate([WALL*3/2, -WALL/2, -1])
 						cylinder(r=WALL/2, h=h+2, $fn=FN/3);
 				}
-
-		/*
-		rotate([0, 0, -10])
-			translate([r-WALL/2, 0, 0])
-				difference() {
-					translate([0, 0, KH/2])
-						cube([WALL*2, WALL*2, KH], center=true);
-					translate([0, -WALL-1, KH/2])
-						cube([WALL*2+1, WALL*2+2, KH+2], center=true);
-					cylinder(r=WALL/2, h=KH+1, $fn=FN/3);
-				}
-		*/
 	}
 }
 
 module knob() {
 	r = (W + WALL)/ 2;
-	backCutAngle = 30;
 
 	difference() {
 		// Outer surface
@@ -112,13 +103,12 @@ module knob() {
 		*/
 
 		// Flexible cutouts
-		flexiCut();
+		knobFlexiCut();
 
 		rotate([0,0,180])
-			flexiCut();
+			knobFlexiCut();
 	}
 }
-/*
-flexiCut();
-*/
-knob();
+
+function r2d(radians) = radians * 180 / PI;
+function d2r(degrees) = degrees * PI / 180;
